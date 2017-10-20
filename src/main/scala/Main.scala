@@ -4,8 +4,10 @@ object Main extends App {
     val line = scala.io.StdIn.readLine()
     val interpreter = Interpreter(line)
     val result =
-      try { interpreter.expr() } catch {
-        case e => e.getMessage
+      try {
+        interpreter.expr()
+      } catch {
+        case e: Exception => e.getMessage
       }
     println(result)
   }
