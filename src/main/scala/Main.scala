@@ -7,9 +7,9 @@ object Main extends App {
       try {
         interpreter.expr()
       } catch {
-        case e: Exception => e.getMessage
+        case e: Exception =>
+          "Parsing failed: " + e.getMessage
       }
     println(result)
   }
-
 }

@@ -4,7 +4,7 @@ case class Interpreter(text: String) {
 
   var pos: Int = 0
   var currentToken: Token = _
-  var currentChar = text(pos)
+  var currentChar: Char = text(pos)
 
   def error() = throw new Exception("Error parsing input")
 
@@ -18,21 +18,18 @@ case class Interpreter(text: String) {
     while (pos < text.length) {
       currentChar = text(pos)
       if (!currentChar.isWhitespace) {
-        if (currentChar.isDigit) {
-          return getInteger()
-        } else if (currentChar == '+') {
-          pos += 1
-          return Token("Plus", currentChar.toString)
-        } else if (currentChar == '-') {
-          pos += 1
-          return Token("Minus", currentChar.toString)
-        } else
-        error()
+        return currentChar match {
+          case x if x.isDigit =>
+            getInteger()
+          case '+' | '-' | '*' | '/' =>
+            pos += 1
+            Token("Op", currentChar.toString)
+          case _ => error()
+        }
       } else {
         pos += 1
       }
     }
-
     Token("EOF", "")
   }
 
@@ -45,21 +42,18 @@ case class Interpreter(text: String) {
     }
 
   def expr(): Int = {
-    currentToken = getNextToken()
+    val tokens =
+      Stream.continually(getNextToken()).takeWhile(_.typ != "EOF").toList
 
-    val left = currentToken
-    eat("Integer")
-
-    val plus = currentToken
-    if (plus.typ == "Plus")
-      eat("Plus")
-    else
-      eat("Minus")
-
-    val right = currentToken
-    eat("Integer")
-
-
-    left.value.toInt + right.value.toInt
+    tokens.sliding(3, 2).foldLeft(tokens.head.value.toInt) {
+      case (sum, List(_, op, x)) =>
+        val int = x.value.toInt
+        op.value match {
+          case "+" => sum + int
+          case "-" => sum - int
+          case "*" => sum * int
+          case "/" => sum / int
+        }
+    }
   }
 }
