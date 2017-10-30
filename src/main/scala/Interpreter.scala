@@ -1,21 +1,77 @@
 import scala.util.Try
 
 case class Interpreter(text: String) {
+  import TokenTypes._
 
-  def expr(): Int = {
-    val tokeniser = new Tokeniser(text)
-    val tokens =
-      Stream.continually(tokeniser.getNextToken).takeWhile(_.typ != "EOF").toList
+  def error() = throw new Exception("Parsing error")
 
-    tokens.sliding(3, 2).foldLeft(tokens.head.value.toInt) {
-      case (sum, List(_, op, x)) =>
-        val int = x.value.toInt
-        op.value match {
-          case "+" => sum + int
-          case "-" => sum - int
-          case "*" => sum * int
-          case "/" => sum / int
-        }
+  var currentToken: Token = _
+
+  def process(tokens: Iterator[Token]): Int = {
+
+    def getNextToken(): Token = {
+      if (tokens.hasNext) {
+        tokens.next()
+      } else {
+        Token(EOF, "")
+      }
     }
+
+    def eat(tokenType: String): Unit = {
+      if (currentToken.typ == tokenType)
+        currentToken = getNextToken()
+      else
+        error()
+    }
+
+    def factor(): Int = {
+      val token = currentToken
+      eat(Integer)
+      token.toInt
+    }
+
+    def term(): Int = {
+      println(s"term $currentToken")
+
+      var result = factor()
+
+      while (List("*", "/").contains(currentToken.value)) {
+        println(s"term inner: $currentToken")
+        val token = currentToken
+        if (token.value == "*") {
+          eat(Op)
+          result *= factor()
+        } else if (token.value == "/") {
+          eat(Op)
+          result /= factor()
+        }
+      }
+
+      result
+    }
+
+    def expr(): Int = {
+      println(s"expr $currentToken")
+      var result = term()
+
+      while (List("+", "-").contains(currentToken.value)) {
+        val token = currentToken
+        if (token.typ == Op) {
+          if (token.value == "+") {
+            eat(Op)
+            result = result + term()
+          } else if (token.value == "-") {
+            eat(Op)
+            result = result - term()
+          }
+        }
+      }
+
+      result
+    }
+
+    currentToken = tokens.next()
+    expr()
   }
+
 }

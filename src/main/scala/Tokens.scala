@@ -1,6 +1,15 @@
-case class Token(typ: String, value: String)
+case class Token(typ: String, value: String) {
+  def toInt: Int = value.toInt
+}
 
-class Tokeniser(val text: String) {
+object TokenTypes {
+  val Op = "Op"
+  val Integer = "Integer"
+  val EOF = "EOF"
+}
+
+class Tokens(val text: String) {
+  import TokenTypes._
   var pos: Int = 0
   var currentToken: Token = _
   var currentChar: Char = text(pos)
@@ -10,7 +19,7 @@ class Tokeniser(val text: String) {
   def getInteger: Token = {
     val numbers = text.substring(pos).takeWhile(_.isDigit)
     pos += numbers.length
-    Token("Integer", numbers)
+    Token(Integer, numbers)
   }
 
   def getNextToken: Token = {
@@ -22,13 +31,21 @@ class Tokeniser(val text: String) {
             getInteger
           case '+' | '-' | '*' | '/' =>
             pos += 1
-            Token("Op", currentChar.toString)
+            Token(Op, currentChar.toString)
           case _ => error()
         }
       } else {
         pos += 1
       }
     }
-    Token("EOF", "")
+    Token(EOF, "")
+  }
+}
+
+object Tokens {
+  import TokenTypes._
+  def apply(text: String): List[Token] = {
+    val tokeniser = new Tokens(text)
+    Stream.continually(tokeniser.getNextToken).takeWhile(_.typ != EOF).toList
   }
 }
