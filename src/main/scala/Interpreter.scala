@@ -26,17 +26,24 @@ case class Interpreter(text: String) {
 
     def factor(): Int = {
       val token = currentToken
-      eat(Integer)
-      token.toInt
+      if (token.typ == Brackets) {
+        eat(Brackets)
+        val result = expr()
+        eat(Brackets)
+        result
+      } else if (token.typ == Integer) {
+        eat(Integer)
+        token.toInt
+      } else {
+        error()
+      }
     }
 
     def term(): Int = {
-      println(s"term $currentToken")
 
       var result = factor()
 
       while (List("*", "/").contains(currentToken.value)) {
-        println(s"term inner: $currentToken")
         val token = currentToken
         if (token.value == "*") {
           eat(Op)
@@ -51,7 +58,6 @@ case class Interpreter(text: String) {
     }
 
     def expr(): Int = {
-      println(s"expr $currentToken")
       var result = term()
 
       while (List("+", "-").contains(currentToken.value)) {

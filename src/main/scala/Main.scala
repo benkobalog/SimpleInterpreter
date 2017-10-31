@@ -5,7 +5,8 @@ object Main extends App {
     val interpreter = Interpreter(line)
     val result =
       try {
-        interpreter.process(Tokens(line).toIterator)
+        val tokens = Tokens(line)
+        interpreter.process(tokens)
       } catch {
         case e: Exception =>
           "Parsing failed: " + e.getClass.getName + " :: " + e.getMessage + "\n" + e.getStackTrace.mkString("\n")

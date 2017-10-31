@@ -6,6 +6,7 @@ object TokenTypes {
   val Op = "Op"
   val Integer = "Integer"
   val EOF = "EOF"
+  val Brackets = "Brackets"
 }
 
 class Tokens(val text: String) {
@@ -32,6 +33,9 @@ class Tokens(val text: String) {
           case '+' | '-' | '*' | '/' =>
             pos += 1
             Token(Op, currentChar.toString)
+          case '(' | ')' =>
+            pos += 1
+            Token(Brackets, currentChar.toString)
           case _ => error()
         }
       } else {
@@ -44,8 +48,11 @@ class Tokens(val text: String) {
 
 object Tokens {
   import TokenTypes._
-  def apply(text: String): List[Token] = {
+  def apply(text: String): Iterator[Token] = {
     val tokeniser = new Tokens(text)
-    Stream.continually(tokeniser.getNextToken).takeWhile(_.typ != EOF).toList
+    Stream
+      .continually(tokeniser.getNextToken)
+      .takeWhile(_.typ != EOF)
+      .toIterator
   }
 }
