@@ -13,6 +13,8 @@ class InterpreterSpec extends FlatSpec with Matchers {
     assert(interpreterFN(
       "7 + 3 * (10 / (12 / (3 + 1) - 1)) / (2 + 3) - 5 - 3 + (8)") == 10)
     assert(interpreterFN("7 + (((3 + 2)))") == 12)
+    assert(interpreterFN("7 + (----3)") == 10)
+    assert(interpreterFN("7 + (-----3)") == 4)
   }
 
   "Interpreter" should "return correct results" in {

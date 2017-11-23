@@ -11,6 +11,13 @@ object Interpreter {
           case "*" => lRes * rRes
           case "/" => lRes / rRes
         }
+
+      case UnaryOp(op, expr) =>
+        op match {
+          case "+" => run(expr)
+          case "-" => -run(expr)
+        }
+
       case Num(x) => x
     }
   }

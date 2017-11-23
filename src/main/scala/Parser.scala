@@ -25,7 +25,10 @@ object Parser {
 
     def factor(): AST = {
       val token = currentToken
-      if (token.typ == Brackets) {
+      if (token.typ == Op && List("+", "-").contains(token.value)) {
+        eat(Op)
+        UnaryOp(token.value, factor())
+      } else if (token.typ == Brackets) {
         eat(Brackets)
         val node = expr()
         eat(Brackets)
