@@ -9,7 +9,7 @@ object TokenTypes {
   val Brackets = "Brackets"
 }
 
-class Tokens(val text: String) {
+class Lexer(val text: String) {
   import TokenTypes._
   var pos: Int = 0
   var currentToken: Token = _
@@ -46,10 +46,10 @@ class Tokens(val text: String) {
   }
 }
 
-object Tokens {
+object Lexer {
   import TokenTypes._
   def apply(text: String): Iterator[Token] = {
-    val tokeniser = new Tokens(text)
+    val tokeniser = new Lexer(text)
     Stream
       .continually(tokeniser.getNextToken)
       .takeWhile(_.typ != EOF)
